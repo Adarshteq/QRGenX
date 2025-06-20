@@ -54,7 +54,7 @@ The most feature-rich QR Code Generator with customization options, scanning cap
 
 ## Live Demo 🌐
 
-
+https://adarshteq.github.io/QRGenX/
 
 ## Installation 💻
 

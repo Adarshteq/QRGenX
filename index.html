@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate QR Code Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ultimate QR Generator</h1>
+            <p>Create, customize, and track QR codes</p>
+        </div>
+
+        <div class="qr-generator">
+            <!-- QR Display Area -->
+            <div class="qr-display-section">
+                <div id="qrcode" class="qrcode"></div>
+                <div class="placeholder">Your QR will appear here</div>
+                
+                <!-- Scan Section -->
+                <div id="scan-section" class="hidden">
+                    <video id="scanner" muted playsinline aria-label="QR Code Scanner view"></video>
+                    <button id="stop-scan" class="scan-btn">Stop Scanner</button>
+                </div>
+            </div>
+
+            <!-- Main Controls -->
+            <div class="control-section">
+                <!-- Input Field -->
+                <div class="input-group">
+                    <input type="text" id="qr-input" placeholder="Enter text/URL" required>
+                    <button id="generate-btn">Generate</button>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button id="scan-toggle" class="scan-btn">📷 Scan QR</button>
+                    <button id="copy-btn">📋 Copy</button>
+                    <button id="share-btn">↗️ Share</button>
+                </div>
+
+                <!-- Advanced Options Toggle -->
+                <button id="toggle-advanced" class="toggle-btn">⚙️ Advanced Options</button>
+            </div>
+
+            <!-- Advanced Options Panel -->
+            <div id="advanced-options" class="advanced-options hidden">
+                <!-- QR Type Selection -->
+                <div class="option-group">
+                    <label for="qr-type">QR Code Type:</label>
+                      <select id="qr-type">
+                          <option value="text">Text/URL</option>
+                          <option value="wifi">Wi-Fi</option>
+                          <option value="contact">Contact</option>
+                          <option value="crypto">Cryptocurrency</option>
+                      </select>
+                </div>
+
+                <!-- Dynamic Options -->
+                <div id="dynamic-options">
+                    <!-- Wi-Fi Options -->
+                    <div id="wifi-options" class="hidden">
+                        <div class="option-group">
+                            <input type="text" id="wifi-ssid" placeholder="Wi-Fi Name (SSID)">
+                        </div>
+                        <div class="option-group">
+                            <input type="text" id="wifi-password" placeholder="Password">
+                        </div>
+                        <div class="option-group">
+                            <label for="wifi-encryption">Encryption Type:</label>
+                              <select id="wifi-encryption">
+                                  <option value="WPA">WPA/WPA2</option>
+                                  <option value="WEP">WEP</option>
+                                  <option value="nopass">Open</option>
+                              </select>
+                        </div>
+                    </div>
+
+                    <!-- Contact Options -->
+                    <div id="contact-options" class="hidden">
+                        <div class="option-group">
+                            <input type="text" id="contact-name" placeholder="Full Name">
+                        </div>
+                        <div class="option-group">
+                            <input type="tel" id="contact-phone" placeholder="Phone">
+                        </div>
+                        <div class="option-group">
+                            <input type="email" id="contact-email" placeholder="Email">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customization -->
+                <div class="customization-group">
+                    <div class="option-group">
+                        <label for="error-correction">Error Correction:</label>
+                        <select id="error-correction">
+                            <option value="L">Low (7%)</option>
+                            <option value="M" selected>Medium (15%)</option>
+                            <option value="Q">High (25%)</option>
+                            <option value="H">Max (30%)</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="qr-color">QR Color:</label>
+                        <input type="color" id="qr-color" value="#000000">
+                    </div>
+
+                    <div class="option-group">
+                        <label for="bg-color">Background:</label>
+                        <input type="color" id="bg-color" value="#ffffff">
+                    </div>
+
+                    <div class="option-group">
+                        <label for="qr-size">Size: <span id="size-value">200</span>px</label>
+                        <input type="range" id="qr-size" min="100" max="500" value="200">
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="encrypt-toggle"> Password Protect
+                    </label>
+                    <input type="password" id="encrypt-password" class="hidden" placeholder="Set password">
+                </div>
+
+                <!-- Logo Upload -->
+                <div class="option-group">
+                    <label for="logo-upload">Add Logo:</label>
+                    <input type="file" id="logo-upload" accept="image/*">
+                </div>
+            </div>
+
+            <!-- Download Options -->
+            <div class="download-options">
+                <button id="download-png">⬇️ PNG</button>
+                <button id="download-svg">⬇️ SVG</button>
+                <button id="download-jpg">⬇️ JPG</button>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="history-panel hidden">
+            <h3>Recently Generated</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <!-- Dark Mode Toggle -->
+    <button id="dark-mode-toggle" class="dark-mode-btn">🌙</button>
+
+    <!-- Vibration API Polyfill -->
+    <script src="https://cdn.jsdelivr.net/npm/vibrant@1.0.0/dist/vibrant.min.js"></script>
+    
+    <!-- QR Scanner -->
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    
+    <script src="script.js">
+      const sizeInput = document.getElementById('qr-size');
+  const sizeValue = document.getElementById('size-value');
+
+  sizeInput.addEventListener('input', () => {
+    sizeValue.textContent = sizeInput.value;
+  });
+    </script>
+</body>
+</html>
